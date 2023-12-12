@@ -1,3 +1,3 @@
 rootProject.name = "avante"
 
-include("demo")
+include("demo", "common", "boot-base", "member-api")
