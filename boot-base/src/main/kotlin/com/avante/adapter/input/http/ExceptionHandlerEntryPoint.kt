@@ -19,7 +19,7 @@ class ExceptionHandlerEntryPoint {
             errors = listOf(
                 ErrorContent(
                     type = "INVALID_PARAMETER",
-                    message = e.message?: "Mismatched input params",
+                    message = e.message ?: "Mismatched input params",
                     fieldName = "Unknown",
                     rejectedValue = null
                 )
@@ -90,10 +90,10 @@ class ExceptionHandlerEntryPoint {
         )
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
+
     // Webflux 기준 PostMapping 오류
     @ExceptionHandler(value = [WebExchangeBindException::class])
     suspend fun webExchangeBindExceptionHandler(e: WebExchangeBindException): ResponseEntity<Any> {
-
         val errors = ErrorFrame(
             errors = e.fieldErrors.map {
                 ErrorContent(
@@ -102,7 +102,8 @@ class ExceptionHandlerEntryPoint {
                     fieldName = it.field,
                     rejectedValue = it.rejectedValue.toString()
                 )
-            })
+            }
+        )
         return ResponseEntity(errors, HttpStatus.BAD_REQUEST)
     }
 }
@@ -115,5 +116,5 @@ data class ErrorContent(
     val type: String,
     val message: String,
     val fieldName: String?,
-    val rejectedValue: String?,
+    val rejectedValue: String?
 )

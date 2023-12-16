@@ -19,12 +19,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration
 import java.io.PrintWriter
 
-
 @Configuration
 @EnableWebSecurity
 @ConfigurationProperties(prefix = "auth")
 class SecurityConfig(
-    var whiteList: List<String> = listOf(),
+    var whiteList: List<String> = listOf()
 ) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
