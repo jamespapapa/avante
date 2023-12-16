@@ -1,7 +1,6 @@
-package com.avante.config
+package com.avante.config.security
 
 import com.avante.common.dto.CommonResponse
-import com.avante.config.security.JwtAuthenticationFilter
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
