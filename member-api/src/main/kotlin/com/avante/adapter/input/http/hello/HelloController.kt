@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.RestController
 class HelloController {
 
     @PostMapping
-    fun hello(@Valid @RequestBody dto: Greeting): Reaction {
+    fun hello(
+        @Valid @RequestBody
+        dto: Greeting
+    ): Reaction {
         return Reaction()
     }
 }
