@@ -1,10 +1,15 @@
 package com.avante.config.security
 
+import com.avante.common.dto.CommonResponse
+import com.avante.common.exception.CommonException
+import com.avante.common.exception.CommonUnauthorizedException
 import com.avante.common.util.JwtUtil
+import com.avante.common.util.ServletUtil
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
@@ -13,23 +18,28 @@ import org.springframework.web.filter.GenericFilterBean
 class JwtAuthenticationFilter : GenericFilterBean() {
     private val log = LoggerFactory.getLogger(this::class.java)
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        val token = (request as HttpServletRequest).getHeader("Authorization")
+        try {
+            val token = (request as HttpServletRequest).getHeader("Authorization")
+            val realToken = resolveBearerToken(token, response as HttpServletResponse)
 
-        resolveBearerToken(token)?.let {
-            if (JwtUtil.validateToken(it)) {
-                val authentication: Authentication = JwtUtil.getAuthentication(it)
+            if (JwtUtil.validateToken(realToken)) {
+                val authentication: Authentication = JwtUtil.getAuthentication(realToken)
                 SecurityContextHolder.getContext().authentication = authentication
             }
-        }
 
-        chain.doFilter(request, response)
+            chain.doFilter(request, response)
+        } catch (e: CommonException) {
+            val errorResponse = CommonResponse(e.status.value(), e.status.reasonPhrase, e.localizedMessage)
+            ServletUtil.writeResponse(response as HttpServletResponse, errorResponse)
+        }
     }
 
-    private fun resolveBearerToken(token: String?): String? {
+    private fun resolveBearerToken(token: String?, res: HttpServletResponse): String {
         if (token != null && token.startsWith("Bearer")) {
             return token.substring(7)
         }
-        log.warn("Invalid JWT Token -> {}", token)
-        return null
+        log.warn(token?.let { "Token should start with 'Bearer '" } ?: "Authorization token is not present.")
+
+        throw CommonUnauthorizedException(token?.let { "Token should start with 'Bearer '" } ?: "Authorization token is not present.")
     }
 }

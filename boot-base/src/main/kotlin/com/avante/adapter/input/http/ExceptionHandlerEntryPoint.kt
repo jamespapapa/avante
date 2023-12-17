@@ -1,18 +1,32 @@
 package com.avante.adapter.input.http
 
+import com.avante.common.exception.CommonException
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
+import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 
-@RestControllerAdvice
+@ControllerAdvice
 class ExceptionHandlerEntryPoint {
+    @ExceptionHandler(value = [CommonException::class])
+    fun commonErrorResponse(e: CommonException): ResponseEntity<Any> {
+        val error = ErrorFrame(
+            errors = listOf(
+                ErrorContent(
+                    type = e.status.reasonPhrase,
+                    message = e.localizedMessage
+                )
+            )
+        )
+        return ResponseEntity(error, e.status)
+    }
+
     @ExceptionHandler(value = [MismatchedInputException::class])
     fun missingFormatArgumentExceptionHandler(e: MismatchedInputException): ResponseEntity<Any> {
         val error = ErrorFrame(
@@ -115,6 +129,6 @@ data class ErrorFrame(
 data class ErrorContent(
     val type: String,
     val message: String,
-    val fieldName: String?,
-    val rejectedValue: String?
+    val fieldName: String? = "",
+    val rejectedValue: String? = ""
 )

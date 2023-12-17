@@ -1,6 +1,7 @@
 package com.avante.common.util
 
 import com.avante.common.dto.JwtToken
+import com.avante.common.exception.CommonUnauthorizedException
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
@@ -74,26 +75,22 @@ object JwtUtil {
     }
 
     fun validateToken(token: String?): Boolean {
-        try {
+        return try {
             Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-            return true
-        } catch (e: SecurityException) {
-            log.warn("Invalid JWT Token", e)
-        } catch (e: MalformedJwtException) {
-            log.warn("Invalid JWT Token", e)
-        } catch (e: ExpiredJwtException) {
-            log.warn("Expired JWT Token", e)
-        } catch (e: UnsupportedJwtException) {
-            log.warn("Unsupported JWT Token", e)
-        } catch (e: IllegalArgumentException) {
-            log.warn("JWT claims string is empty.", e)
-        } catch (e: SignatureException) {
-            log.warn("JWT signature does not match locally computed signature.", e)
+            true
+        } catch (e: Exception) {
+            when (e) {
+                is SecurityException, is MalformedJwtException -> throw CommonUnauthorizedException("Invalid Token")
+                is ExpiredJwtException -> throw CommonUnauthorizedException("Token Expired")
+                is UnsupportedJwtException -> throw CommonUnauthorizedException("Unsupported Token")
+                is IllegalArgumentException -> throw CommonUnauthorizedException("Illegal Argument")
+                is SignatureException -> throw CommonUnauthorizedException("Signature Not Matched")
+                else -> throw CommonUnauthorizedException()
+            }
         }
-        return false
     }
 
     private fun parseClaims(accessToken: String): Claims {

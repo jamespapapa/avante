@@ -1,13 +1,14 @@
 package com.avante.common.exception
 
+import com.avante.common.util.prefixOrEmptyForNull
 import org.springframework.http.HttpStatus
 
 open class CommonException(
-    private val status: HttpStatus,
+    val status: HttpStatus,
     override val message: String?
 ) : RuntimeException(message ?: status.reasonPhrase)
 
-class UserNotFoundException : CommonException(HttpStatus.BAD_REQUEST, "사용자를 찾을 수 없습니다.")
-class JwtNotPresentException : CommonException(HttpStatus.UNAUTHORIZED, "JWT토큰이 없습니다.")
-class JwtExpiredException : CommonException(HttpStatus.UNAUTHORIZED, "JWT토큰이 만료 되었습니다.")
-class JwtNotValidException : CommonException(HttpStatus.UNAUTHORIZED, "JWT토큰이 유효하지 않습니다.")
+class CommonNotFoundException(reason: String? = null) : CommonException(HttpStatus.NOT_FOUND, "Not Found. ${reason?.prefixOrEmptyForNull("See ->")}")
+class CommonUnauthorizedException(reason: String? = null) : CommonException(HttpStatus.UNAUTHORIZED, "Unauthorized. ${reason?.prefixOrEmptyForNull("See ->")}")
+class CommonForbiddenException(reason: String? = null) : CommonException(HttpStatus.FORBIDDEN, "Forbidden. ${reason?.prefixOrEmptyForNull("See ->")}")
+class CommonBadRequestException(reason: String? = null) : CommonException(HttpStatus.BAD_REQUEST, "Bad Request. ${reason?.prefixOrEmptyForNull("Reason ->")}")
