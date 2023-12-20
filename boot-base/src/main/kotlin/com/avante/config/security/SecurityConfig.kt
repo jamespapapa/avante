@@ -40,7 +40,8 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(PathRequest.toH2Console()).permitAll()
-                    .requestMatchers("/auth/login").permitAll()
+                    .requestMatchers("/members/sign-up").permitAll()
+                    .requestMatchers("/members/login").permitAll()
                     .requestMatchers("/hello").hasRole("USER")
                     .anyRequest().authenticated()
             }

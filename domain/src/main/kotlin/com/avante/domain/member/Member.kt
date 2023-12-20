@@ -7,20 +7,21 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.hibernate.annotations.BatchSize
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 @Entity
 @Table(name = "member")
+@BatchSize(size = 200)
 class Member : UserDetails {
     @Id
-    @GeneratedValue
     @Column(name = "id", updatable = false, unique = true, nullable = false)
     var id: String = ""
 
-    @Column(name = "password", nullable = false)
-    var pwd: String = ""
+    @Column(name = "passwd", nullable = false)
+    var passwd: String = ""
 
     @Column(name = "member_name", nullable = false)
     var name: String = ""
@@ -32,7 +33,7 @@ class Member : UserDetails {
     }
 
     override fun getPassword(): String {
-        return pwd
+        return password
     }
 
     override fun getUsername(): String {
