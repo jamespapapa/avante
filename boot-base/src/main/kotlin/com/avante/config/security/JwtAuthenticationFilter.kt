@@ -16,7 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
 
 class JwtAuthenticationFilter(
-    var whiteList: List<String> = listOf()
+    private var whiteList: List<String> = listOf()
 ) : GenericFilterBean() {
     private val log = LoggerFactory.getLogger(this::class.java)
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
