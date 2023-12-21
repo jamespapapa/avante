@@ -1,11 +1,12 @@
 package com.avante.adapter.input.http.hello
 
 import com.avante.adapter.input.http.hello.dto.request.Greeting
+import com.avante.adapter.input.http.member.dto.request.LoginRequest
 import com.avante.adapter.input.http.member.dto.request.SignUpRequest
+import com.avante.common.dto.CommonResponse
 import com.avante.common.dto.JwtToken
 import com.avante.common.util.JwtUtil
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.hamcrest.core.StringContains.containsString
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -17,7 +18,6 @@ import org.springframework.test.context.TestConstructor
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.annotation.Transactional
 
@@ -34,8 +34,8 @@ class MemberControllerTest(
     @BeforeEach
     fun setUp() {
         if (guest == null) {
-            guest = JwtUtil.generateToken("avante", listOf("ROLE_GUEST"))
-            user = JwtUtil.generateToken("avanteAuthorized", listOf("ROLE_USER"))
+            guest = JwtUtil.generateToken("avante", listOf("GUEST"))
+            user = JwtUtil.generateToken("avanteAuthorized", listOf("USER"))
         }
     }
 
@@ -51,7 +51,7 @@ class MemberControllerTest(
         val jsonBody = jacksonObjectMapper().writeValueAsString(request)
 
         mockMvc.perform(
-            post("/members/sign-up")
+            post("/members/v1/sign-up")
                 .content(jsonBody)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -63,36 +63,14 @@ class MemberControllerTest(
     }
 
     @Test
-    @DisplayName("Greeting by Guest")
-    fun greetingGuest() {
-        val request = Greeting("Hello !")
+    @DisplayName("회원 가입 이후 로그인에 성공한다")
+    fun `회원가입 이후 로그인에 성공한다`() {
+        val request = SignUpRequest("jules.my", "julespasswd", "jules")
 
         val jsonBody = jacksonObjectMapper().writeValueAsString(request)
 
         mockMvc.perform(
-            post("/hello")
-                .header("Authorization", "Bearer ${guest?.accessToken}")
-                .content(jsonBody)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(
-                status().isForbidden
-            )
-            .andDo(MockMvcResultHandlers.print())
-    }
-
-    @Test
-    @DisplayName("Greeting user")
-    fun `Greeting 성공`() {
-        /** Not null parameter message */
-        val request = Greeting("Hello~!")
-
-        val jsonBody = jacksonObjectMapper().writeValueAsString(request)
-
-        mockMvc.perform(
-            post("/hello")
-                .header("Authorization", "Bearer ${user?.accessToken}")
+            post("/members/v1/sign-up")
                 .content(jsonBody)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -101,27 +79,88 @@ class MemberControllerTest(
                 status().isOk
             )
             .andDo(MockMvcResultHandlers.print())
-    }
 
-    @Test
-    @DisplayName("스프링 validation이 정상 동작 한다")
-    fun `스프링 validation이 정상 동작 한다`() {
-        /** Not null parameter message */
-        val request = Greeting(null)
-
-        val jsonBody = jacksonObjectMapper().writeValueAsString(request)
-
+        val loginSuccess = LoginRequest("jules.my", "julespasswd")
         mockMvc.perform(
-            post("/hello")
-                .header("Authorization", "Bearer ${user?.accessToken}")
-                .content(jsonBody)
+            post("/members/v1/login")
+                .content(jacksonObjectMapper().writeValueAsString(loginSuccess))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(
                 status().isBadRequest
             )
-            .andExpect(jsonPath("$.errors[0].fieldName", containsString("message")))
+            .andDo(MockMvcResultHandlers.print())
+
+        val wrongPasswd = LoginRequest("jules.my", "julespasswd222")
+        mockMvc.perform(
+            post("/members/v1/login")
+                .content(jacksonObjectMapper().writeValueAsString(wrongPasswd))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(
+                status().isBadRequest
+            )
+            .andDo(MockMvcResultHandlers.print())
+
+        val nonExistingId = LoginRequest("a.b", "passwd")
+        mockMvc.perform(
+            post("/members/v1/login")
+                .content(jacksonObjectMapper().writeValueAsString(nonExistingId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(
+                status().isBadRequest
+            )
+            .andDo(MockMvcResultHandlers.print())
+
+        val invalidRequest = LoginRequest("", "")
+        mockMvc.perform(
+            post("/members/v1/login")
+                .content(jacksonObjectMapper().writeValueAsString(invalidRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(
+                status().isBadRequest
+            )
+            .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    @DisplayName("회원가입 이후 받은 토큰으로 인증이 필요한 api 호출 성공")
+    fun `회원가입 이후 받은 토큰으로 인증이 필요한 api 호출 성공`() {
+        val request = SignUpRequest("jules.my", "julespasswd", "jules")
+
+        val jsonBody = jacksonObjectMapper().writeValueAsString(request)
+
+        val response = mockMvc.perform(
+            post("/members/v1/sign-up")
+                .content(jsonBody)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(
+                status().isOk
+            )
+            .andReturn().response.contentAsString
+
+        val token = jacksonObjectMapper().readValue(response, CommonResponse::class.java).data as Map<String, Any>
+
+        val helloRequest = jacksonObjectMapper().writeValueAsString(Greeting("Hello !"))
+
+        mockMvc.perform(
+            post("/hello")
+                .content(helloRequest)
+                .header("Authorization", "Bearer ${token["accessToken"]}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(
+                status().isOk
+            )
             .andDo(MockMvcResultHandlers.print())
     }
 }

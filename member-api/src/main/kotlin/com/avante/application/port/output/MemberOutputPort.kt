@@ -1,8 +1,6 @@
 package com.avante.application.port.output
 
 import com.avante.domain.member.Member
+import org.springframework.data.jpa.repository.JpaRepository
 
-interface MemberOutputPort {
-    fun saveMember(member: Member): Member
-    fun findMemberByIdOrNull(id: String): Member?
-}
+interface MemberOutputPort : JpaRepository<Member, String>

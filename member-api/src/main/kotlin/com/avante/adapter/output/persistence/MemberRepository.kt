@@ -1,9 +1,7 @@
 package com.avante.adapter.output.persistence
 
-import com.avante.domain.member.Member
-import org.springframework.data.jpa.repository.JpaRepository
+import com.avante.application.port.output.MemberOutputPort
 import org.springframework.stereotype.Repository
 
 @Repository
-interface MemberRepository : JpaRepository<Member, String>{
-}
+abstract class MemberRepository : MemberOutputPort

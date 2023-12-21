@@ -33,8 +33,8 @@ class HelloControllerTest(
     @BeforeEach
     fun setUp() {
         if (guest == null) {
-            guest = JwtUtil.generateToken("avante", listOf("ROLE_GUEST"))
-            user = JwtUtil.generateToken("avanteAuthorized", listOf("ROLE_USER"))
+            guest = JwtUtil.generateToken("avante", listOf("GUEST"))
+            user = JwtUtil.generateToken("avanteAuthorized", listOf("USER"))
         }
     }
 

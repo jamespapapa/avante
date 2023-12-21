@@ -3,6 +3,8 @@ plugins {
     kotlin("plugin.spring") version "1.9.20"
 }
 
+tasks.bootJar { enabled = false }
+
 dependencies {
     implementation(project(":common"))
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -18,15 +20,15 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
     // mapstruct
-    implementation("org.mapstruct:mapstruct:1.4.1.Final")
-    kapt("org.mapstruct:mapstruct-processor:1.4.1.Final")
+    implementation("org.mapstruct:mapstruct:1.5.3.Final")
+    kapt("org.mapstruct:mapstruct-processor:1.5.3.Final")
 
     // queryDsl
     kapt("org.springframework.boot:spring-boot-configuration-processor")
-    kapt("jakarta.annotation:jakarta.annotation-api")
-    kapt("jakarta.persistence:jakarta.persistence-api")
     implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
-    kapt("com.querydsl:querydsl-apt::jpa")
+    implementation("com.querydsl:querydsl-core:5.0.0")
+    kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    kapt("com.querydsl:querydsl-kotlin-codegen:5.0.0")
 
     // Google collections
     implementation("com.google.guava:guava:23.0")

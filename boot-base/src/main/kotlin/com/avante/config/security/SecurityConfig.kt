@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
@@ -40,12 +41,12 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(PathRequest.toH2Console()).permitAll()
-                    .requestMatchers("/members/sign-up").permitAll()
-                    .requestMatchers("/members/login").permitAll()
+                    .requestMatchers("/members/v1/sign-up").permitAll()
+                    .requestMatchers("/members/v1/login").permitAll()
                     .requestMatchers("/hello").hasRole("USER")
                     .anyRequest().authenticated()
             }
-            .addFilterBefore(JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(JwtAuthenticationFilter(whiteList), UsernamePasswordAuthenticationFilter::class.java)
             .exceptionHandling { configurer ->
                 configurer
                     .accessDeniedHandler { _, res, _ ->
@@ -59,6 +60,11 @@ class SecurityConfig(
             }
 
         return http.build()
+    }
+
+    @Bean
+    fun grantedAuthorityDefaults(): GrantedAuthorityDefaults {
+        return GrantedAuthorityDefaults("") // Remove the ROLE_ prefix
     }
 
     @Bean

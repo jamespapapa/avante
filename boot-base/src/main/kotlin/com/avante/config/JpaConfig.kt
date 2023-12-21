@@ -19,6 +19,6 @@ class JpaConfig : AuditorAware<String> {
         Optional.ofNullable(SecurityContextHolder.getContext().authentication.name)
 
     @Bean
-    fun jpaQueryFactory(): JPAQueryFactory =
+    fun queryFactory(): JPAQueryFactory =
         JPAQueryFactory(entityManager)
 }

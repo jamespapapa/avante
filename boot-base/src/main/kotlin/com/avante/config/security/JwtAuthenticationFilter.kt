@@ -15,16 +15,20 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
 
-class JwtAuthenticationFilter : GenericFilterBean() {
+class JwtAuthenticationFilter(
+    var whiteList: List<String> = listOf()
+) : GenericFilterBean() {
     private val log = LoggerFactory.getLogger(this::class.java)
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         try {
-            val token = (request as HttpServletRequest).getHeader("Authorization")
-            val realToken = resolveBearerToken(token, response as HttpServletResponse)
+            if (secured(request as HttpServletRequest)) {
+                val token = request.getHeader("Authorization")
+                val realToken = resolveBearerToken(token, response as HttpServletResponse)
 
-            if (JwtUtil.validateToken(realToken)) {
-                val authentication: Authentication = JwtUtil.getAuthentication(realToken)
-                SecurityContextHolder.getContext().authentication = authentication
+                if (JwtUtil.validateToken(realToken)) {
+                    val authentication: Authentication = JwtUtil.getAuthentication(realToken)
+                    SecurityContextHolder.getContext().authentication = authentication
+                }
             }
 
             chain.doFilter(request, response)
@@ -32,6 +36,10 @@ class JwtAuthenticationFilter : GenericFilterBean() {
             val errorResponse = CommonResponse(e.status.value(), e.status.reasonPhrase, e.localizedMessage)
             ServletUtil.writeResponse(response as HttpServletResponse, errorResponse)
         }
+    }
+
+    private fun secured(request: HttpServletRequest): Boolean {
+        return !whiteList.contains(request.requestURI)
     }
 
     private fun resolveBearerToken(token: String?, res: HttpServletResponse): String {

@@ -5,14 +5,13 @@ spring:
 auth:
   white-list:
     - /swagger-ui/**
-    - /v1/health
-    - /v1/auth/**
+    - /members/v1/sign-up
+    - /members/v1/login
     - /v2/api-docs
     - /v3/api-docs
     - /configuration/**
     - /swagger*/**
     - /webjars/**
-    - /v1/**
     - /h2-console/**
   cors:
     allowed-origin:
