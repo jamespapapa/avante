@@ -10,6 +10,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.4" apply false
     id("org.springframework.boot") version "3.2.0" apply false
     id("com.gorylenko.gradle-git-properties") version "1.5.1" apply false
+    id("com.google.cloud.tools.jib") version "3.3.1" apply false
 }
 
 allprojects {
@@ -39,6 +40,7 @@ subprojects {
     apply(plugin = "com.gorylenko.gradle-git-properties")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "org.jlleitschuh.gradle.ktlint-idea")
+    apply(plugin = "com.google.cloud.tools.jib")
 
     group = "com.avante"
     version = "dev"

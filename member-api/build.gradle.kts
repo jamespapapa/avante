@@ -3,6 +3,19 @@ plugins {
     kotlin("plugin.spring") version "1.9.20"
 }
 
+jib {
+    from {
+        image = "eclipse-temurin:17-jre-alpine"
+    }
+    to {
+        image = "jules86my/member-api"
+        tags = setOf("2024.01.08", "latest")
+    }
+    container {
+        ports = listOf("8080")
+    }
+}
+
 dependencies {
     implementation(project(":common"))
     implementation(project(":boot-base"))
