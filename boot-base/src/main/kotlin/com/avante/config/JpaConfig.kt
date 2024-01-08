@@ -13,12 +13,15 @@ import java.util.Optional
 @Configuration
 @EnableJpaAuditing
 class JpaConfig : AuditorAware<String> {
+
     @PersistenceContext
     private val entityManager: EntityManager? = null
+
     override fun getCurrentAuditor(): Optional<String> =
         Optional.ofNullable(SecurityContextHolder.getContext().authentication.name)
 
     @Bean
     fun queryFactory(): JPAQueryFactory =
         JPAQueryFactory(entityManager)
+
 }

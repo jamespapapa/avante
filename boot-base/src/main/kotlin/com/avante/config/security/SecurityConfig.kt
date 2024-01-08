@@ -34,8 +34,6 @@ class SecurityConfig(
                 config.allowCredentials = true
                 config.allowedHeaders = listOf("*")
                 config.maxAge = 600L
-
-                config
             }
             .headers { it.frameOptions { f -> f.disable() }.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
@@ -49,7 +47,7 @@ class SecurityConfig(
             .addFilterBefore(JwtAuthenticationFilter(whiteList), UsernamePasswordAuthenticationFilter::class.java)
             .exceptionHandling { configurer ->
                 configurer
-                    .accessDeniedHandler { _, res, _ ->
+                    .accessDeniedHandler { _, res, _ -> // TODO "_" 이게 뭘 의미하는 건지 모르겠어요...
                         val forbidden = CommonResponse(HttpStatus.FORBIDDEN.value(), "Forbidden", "Check your authorization status.")
                         ServletUtil.writeResponse(res, forbidden)
                     }

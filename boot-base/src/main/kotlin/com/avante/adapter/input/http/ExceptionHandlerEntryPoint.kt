@@ -14,8 +14,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @ControllerAdvice
 class ExceptionHandlerEntryPoint {
+
     @ExceptionHandler(value = [CommonException::class])
     fun commonErrorResponse(e: CommonException): ResponseEntity<Any> {
+
         val error = ErrorFrame(
             errors = listOf(
                 ErrorContent(
@@ -24,11 +26,13 @@ class ExceptionHandlerEntryPoint {
                 )
             )
         )
+
         return ResponseEntity(error, e.status)
     }
 
     @ExceptionHandler(value = [MismatchedInputException::class])
     fun missingFormatArgumentExceptionHandler(e: MismatchedInputException): ResponseEntity<Any> {
+
         val error = ErrorFrame(
             errors = listOf(
                 ErrorContent(
@@ -39,12 +43,14 @@ class ExceptionHandlerEntryPoint {
                 )
             )
         )
+
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
 
     // enum, LocalDateTime 매핑 오류.
     @ExceptionHandler(value = [InvalidFormatException::class])
     fun invalidFormatException(e: InvalidFormatException): ResponseEntity<Any> {
+
         val error = ErrorFrame(
             errors = listOf(
                 ErrorContent(
@@ -55,12 +61,14 @@ class ExceptionHandlerEntryPoint {
                 )
             )
         )
+
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
 
     // javax.validation.constraints 오류
     @ExceptionHandler(value = [MethodArgumentNotValidException::class])
     fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<Any> {
+
         val error = ErrorFrame(
             errors = e.fieldErrors.map {
                 ErrorContent(
@@ -71,11 +79,13 @@ class ExceptionHandlerEntryPoint {
                 )
             }
         )
+
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(value = [MissingServletRequestParameterException::class])
     fun missingServletRequestParameterException(e: MissingServletRequestParameterException): ResponseEntity<Any> {
+
         val error = ErrorFrame(
             errors = listOf(
                 ErrorContent(
@@ -86,12 +96,14 @@ class ExceptionHandlerEntryPoint {
                 )
             )
         )
+
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
 
     // GetMapping 에서 LocalDateTime, Enum 오류발생시 사용
     @ExceptionHandler(value = [MethodArgumentTypeMismatchException::class])
     fun methodArgumentTypeMismatchException(e: MethodArgumentTypeMismatchException): ResponseEntity<Any> {
+
         val error = ErrorFrame(
             errors = listOf(
                 ErrorContent(
@@ -102,12 +114,14 @@ class ExceptionHandlerEntryPoint {
                 )
             )
         )
+
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
 
     // Webflux 기준 PostMapping 오류
     @ExceptionHandler(value = [WebExchangeBindException::class])
     suspend fun webExchangeBindExceptionHandler(e: WebExchangeBindException): ResponseEntity<Any> {
+
         val errors = ErrorFrame(
             errors = e.fieldErrors.map {
                 ErrorContent(
@@ -118,6 +132,7 @@ class ExceptionHandlerEntryPoint {
                 )
             }
         )
+
         return ResponseEntity(errors, HttpStatus.BAD_REQUEST)
     }
 }
