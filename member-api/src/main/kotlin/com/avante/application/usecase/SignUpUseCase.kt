@@ -24,7 +24,7 @@ class SignUpUseCase(
     @Transactional
     fun signUp(request: SignUpRequest): JwtToken {
         val member = memberMapper.signUpRequestToEntity(request)
-            .apply { passwd = passwordEncoder.encode(request.passwd) }
+            .apply { passwd = passwordEncoder.encode(request.passwd) } // TODO 코틀린 인라인 함수 활용(let 등)
 
         member.roles = listOf("USER", "DEFAULT")
         val saved = memberRepository.save(member)

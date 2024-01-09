@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails
 @Table(name = "member")
 @BatchSize(size = 200)
 class Member : UserDetails {
+
+    // TODO 보통 id(pk)는 Long 값과 같은 생성값으로 가져가는 것이 일반적인데 String(전화번호?)로 가져가도 문제가 없을지
     @Id
     @Column(name = "id", updatable = false, unique = true, nullable = false)
     var id: String = ""
@@ -27,7 +29,8 @@ class Member : UserDetails {
 
     @ElementCollection(fetch = FetchType.LAZY)
     var roles: List<String> = mutableListOf()
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
+
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> { // TODO out 키워드 파악
         return roles.map { SimpleGrantedAuthority(it) }.toMutableList()
     }
 

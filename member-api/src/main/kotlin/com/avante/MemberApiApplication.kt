@@ -7,6 +7,6 @@ import org.springframework.boot.runApplication
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class])
 class MemberApiApplication
 
-fun main(args: Array<String>) {
+ㅈfun main(args: Array<String>) {
     runApplication<MemberApiApplication>(*args)
 }

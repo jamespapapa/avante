@@ -47,7 +47,7 @@ class SecurityConfig(
             .addFilterBefore(JwtAuthenticationFilter(whiteList), UsernamePasswordAuthenticationFilter::class.java)
             .exceptionHandling { configurer ->
                 configurer
-                    .accessDeniedHandler { _, res, _ -> // TODO "_" 이게 뭘 의미하는 건지 모르겠어요...
+                    .accessDeniedHandler { _, res, _ -> // TODO "_" 이게 뭘 의미하는 건지 모르겠어요...(함수형 인터페이스 파악)
                         val forbidden = CommonResponse(HttpStatus.FORBIDDEN.value(), "Forbidden", "Check your authorization status.")
                         ServletUtil.writeResponse(res, forbidden)
                     }

@@ -20,6 +20,7 @@ class JpaConfig : AuditorAware<String> {
     override fun getCurrentAuditor(): Optional<String> =
         Optional.ofNullable(SecurityContextHolder.getContext().authentication.name)
 
+    // TODO QueryDSL 설정이 이게 전부 다인지 파악
     @Bean
     fun queryFactory(): JPAQueryFactory =
         JPAQueryFactory(entityManager)

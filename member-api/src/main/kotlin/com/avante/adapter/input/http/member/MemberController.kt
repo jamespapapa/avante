@@ -22,7 +22,7 @@ class MemberController(
 
     @PostMapping("/sign-up")
     fun signUp(
-        @Valid @RequestBody
+        @Valid @RequestBody // TODO 유효성 검사 어노테이션 관련 처리 로직은 어떻게 되는지 파악
         request: SignUpRequest
     ): CommonResponse<JwtToken> {
         return CommonResponse(HttpStatus.OK.value(), HttpStatus.OK.reasonPhrase, signUpUseCase.signUp(request))
